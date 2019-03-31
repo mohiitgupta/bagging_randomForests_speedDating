@@ -3,6 +3,7 @@ import numpy as np
 import random
 import math
 import sys
+import time
 
 LABELS_LEN = 2
 
@@ -194,6 +195,7 @@ def randomForests(trainingSet, testSet):
     return run_randomForests(trainingSet, testSet, 8, 30)
 
 def main():
+    t0 = time.time()
     if len(sys.argv) != 4:
         print ("usage: python [filename] [training file name] [test file name] [model type 1(DT), 2(BT) or 3(RF)]")
     else:
@@ -215,6 +217,10 @@ def main():
             print ("Testing Accuracy RF:", testing_accuracy)
         else:
             print ("incorrect model type", model_type)
+
+    t1 = time.time()
+    total = t1-t0
+    print ("total time taken for running code", total, "seconds")
             
 if __name__ == '__main__':
     main()

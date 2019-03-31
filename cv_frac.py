@@ -3,7 +3,7 @@ import numpy as np
 from trees import *
 from preprocess_assg4 import preprocess
 from scipy import stats
-
+import time
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -30,6 +30,7 @@ def get_train_test_fold(train_data_split, test_idx):
     return train_set, test_set
 
 def main():
+    t0 = time.time()
     preprocess("dating-full.csv")
     trainingSet = pd.read_csv("trainingSet.csv")
     num_folds = 10
@@ -113,6 +114,9 @@ def main():
         else:
             print ("\nAccepting Null Hypothesis H0 since pvalue is greater than 0.05")
 
+    t1 = time.time()
+    total = t1-t0
+    print ("total time taken for running code", total/60, "minutes")
 
 if __name__ == '__main__':
     main()
