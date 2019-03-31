@@ -38,70 +38,61 @@ def main():
     train_data_split = split_cv(32, trainingSet, 0.5, num_folds)
 
 
-    depth_list = [3,5,7,9]
-    num_trees = 30
+    num_trees_list = [10, 20, 40, 50]
+    depth = 8
     accuracy_lists_models = []
-    for i in range(3):
+    for i in range(2):
         accuracy_lists_models.append([])
-    for depth in depth_list:
+    for num_trees in num_trees_list:
         for idx in range(num_folds):
             trainingSet, testSet = get_train_test_fold(train_data_split, idx)
-            train_accuracy, test_accuracy = run_decisionTree(trainingSet, testSet, depth)
+            train_accuracy, test_accuracy = run_bagging(trainingSet, testSet, depth, num_trees)
             accuracy_lists_models[0].append(test_accuracy)
 
-            train_accuracy, test_accuracy = run_bagging(trainingSet, testSet, depth, num_trees)
-            accuracy_lists_models[1].append(test_accuracy)
-
             train_accuracy, test_accuracy = run_randomForests(trainingSet, testSet, depth, num_trees)
-            accuracy_lists_models[2].append(test_accuracy)
+            accuracy_lists_models[1].append(test_accuracy)
           
     avg_accuracy_models = []
     se_models = []
-    for i in range(3):
+    for i in range(2):
         avg_accuracy_models.append([])
         se_models.append([])
 
-    for i, depth in enumerate(depth_list):
+    for i, num_trees in enumerate(num_trees_list):
         avg_accuracy_models[0].append(np.average(accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds]))
         se_models[0].append(stats.sem(accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds]))
-        print ("depth", depth, "Model Decision Tree: test average accuracy", avg_accuracy_models[0][i], 
+        print ("num_trees", num_trees, "Model Bagging: test average accuracy", avg_accuracy_models[0][i], 
                "standard error:", se_models[0][i])
 
         avg_accuracy_models[1].append(np.average(accuracy_lists_models[1][num_folds*i:num_folds*i+num_folds]))
         se_models[1].append(stats.sem(accuracy_lists_models[1][num_folds*i:num_folds*i+num_folds]))
-        print ("depth", depth, "Model Bagging: test average accuracy", avg_accuracy_models[1][i], 
+        print ("num_trees", num_trees, "Model Random Forest: test average accuracy", avg_accuracy_models[1][i], 
                "standard error:", se_models[1][i])
-
-        avg_accuracy_models[2].append(np.average(accuracy_lists_models[2][num_folds*i:num_folds*i+num_folds]))
-        se_models[2].append(stats.sem(accuracy_lists_models[2][num_folds*i:num_folds*i+num_folds]))
-        print ("depth", depth, "Model Random Forest: test average accuracy", avg_accuracy_models[2][i], 
-               "standard error:", se_models[2][i])
 
     '''
     Plot learning Curves
     '''
 
-    plot_graph(depth_list, avg_accuracy_models[0], se_models[0])
-    plot_graph(depth_list, avg_accuracy_models[1], se_models[1])
-    plot_graph(depth_list, avg_accuracy_models[2], se_models[2])
+    plot_graph(num_trees_list, avg_accuracy_models[0], se_models[0])
+    plot_graph(num_trees_list, avg_accuracy_models[1], se_models[1])
     y_axis_label = "Average Model Accuracy"
-    x_axis_label = "Depth Limit on Tree"
+    x_axis_label = "Number of Trees"
     plt.xlabel(x_axis_label)
     plt.ylabel(y_axis_label)
-    plt.legend(['Decision Tree', 'Bagged Trees','Random Forest'], loc='best')
+    plt.legend(['Bagged Trees','Random Forest'], loc='best')
         
     plt.title(y_axis_label + ' v/s ' + x_axis_label)
     # plt.show()
-    plt.savefig("influence_tree_depth",dpi=300)
+    plt.savefig("influence_number_trees",dpi=300)
 
     '''
     Do Hypothesis Testing
     '''
-    for i,depth in enumerate(depth_list):
+    for i,num_trees in enumerate(num_trees_list):
 
-        print ("\nFor Depth", depth, "run Paired t-test for Decision Tree and Bagging models")
-        print ("\nNull Hypothesis H0: Decision Tree Accuracy = Bagging Accuracy")
-        print ("Alternate Hypothesis H1: Decision Tree Accuracy != Bagging Accuracy")
+        print ("\nFor num_trees", num_trees, "run Paired t-test for Bagging and Random Forests models")
+        print ("\nNull Hypothesis H0: Bagging Accuracy = Random Forests Accuracy")
+        print ("Alternate Hypothesis H1: Bagging Accuracy != Random Forests Accuracy")
         print (accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds])
         print (accuracy_lists_models[1][num_folds*i:num_folds*i+num_folds])
         t_statistic, p_statistic = stats.ttest_rel(accuracy_lists_models[1][num_folds*i:num_folds*i+num_folds], accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds])

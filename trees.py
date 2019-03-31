@@ -26,11 +26,9 @@ class Node:
 
 def find_gini(count_array, total_count):
     sum_prob = 0
-    for i in range(LABELS_LEN):
-        # print ("label i=", i, " count=",count_array[i])
-        if i in count_array:
-            prob_i = count_array[i]/(1.0*total_count)
-            sum_prob += pow(prob_i,2)
+    for count in count_array:
+        prob = count/total_count
+        sum_prob += pow(prob,2)
     return 1 - sum_prob
 
 def calculate_gini(labels):
@@ -51,7 +49,7 @@ def predict_label(labels):
     return predicted_label, confidence
 
 def count_branch(attr, attr_value, dataframe):
-    count_array = dataframe[dataframe[attr]==attr_value]["decision"].value_counts()
+    count_array = dataframe[dataframe[attr]==attr_value]['decision'].value_counts()
     return count_array, np.sum(count_array)
 
 def calculate_gini_gain(attr, dataframe, gini_sample):
@@ -103,7 +101,7 @@ def get_inference_multiple_trees(baggedTrees, test_features, test_labels):
 
 def create_decision_tree(trainingSet, depth, is_random_forest, excluded_features, MAX_DEPTH):    
     predicted_label, confidence = predict_label(trainingSet['decision'])
-    if depth >= MAX_DEPTH or len(trainingSet) < 50 or confidence == 1:
+    if (depth >= MAX_DEPTH) or (len(trainingSet) < 50) or (confidence == 1):
         return Node(None, predicted_label)
 
     # print ("\ndepth", depth, "length trainingset", len(trainingSet['decision']))
@@ -119,13 +117,13 @@ def create_decision_tree(trainingSet, depth, is_random_forest, excluded_features
         columns = random.sample(set(columns), num_samples)
         
     max_gini_gain = -100
-    max_split_attr = -100
+    max_split_attr = None
     for attr in columns:
-        if attr != "decision":
+        if attr != 'decision':
             gini_gain = calculate_gini_gain(attr, trainingSet, gini_sample)
             # if attr == "concerts":
             #     print (attr, gini_gain)
-            if gini_gain > max_gini_gain:
+            if gini_gain >= max_gini_gain:
                 max_gini_gain = gini_gain
                 max_split_attr = attr
 
@@ -135,7 +133,7 @@ def create_decision_tree(trainingSet, depth, is_random_forest, excluded_features
 
     right_trainingSet = trainingSet[trainingSet[max_split_attr]==1]
     right_trainingSet = right_trainingSet.loc[:, right_trainingSet.columns != max_split_attr]
-    print ("size of left child", len(left_trainingSet), "size of right child", len(right_trainingSet))
+    # print ("size of left child", len(left_trainingSet), "size of right child", len(right_trainingSet))
     node = Node(max_split_attr, predicted_label)
 
     if len(left_trainingSet) > 0:
@@ -168,7 +166,7 @@ def run_decisionTree(trainingSet, testSet, MAX_DEPTH):
     return train_accuracy, test_accuracy
 
 def decisionTree(trainingSet, testSet):
-    return run_decisionTree(trainingSet, testSet, 10)
+    return run_decisionTree(trainingSet, testSet, 8)
 
 def run_bagging(trainingSet, testSet, MAX_DEPTH, num_trees):
     is_random_forest = False
@@ -181,7 +179,7 @@ def run_bagging(trainingSet, testSet, MAX_DEPTH, num_trees):
     return train_accuracy, test_accuracy
 
 def bagging(trainingSet, testSet):
-    return run_bagging(trainingSet, testSet, 1, 30)
+    return run_bagging(trainingSet, testSet, 8, 30)
 
 def run_randomForests(trainingSet, testSet, MAX_DEPTH, num_trees):
     rfTrees =create_bagged_trees(trainingSet, True, MAX_DEPTH, num_trees)
@@ -195,7 +193,6 @@ def run_randomForests(trainingSet, testSet, MAX_DEPTH, num_trees):
 def randomForests(trainingSet, testSet):
     return run_randomForests(trainingSet, testSet, 8, 30)
 
-
 def main():
     if len(sys.argv) != 4:
         print ("usage: python [filename] [training file name] [test file name] [model type 1(LR) or 2(SVM)]")
@@ -203,7 +200,6 @@ def main():
         trainingSet = pd.read_csv(sys.argv[1])
         testSet= pd.read_csv(sys.argv[2])
         model_type = int(sys.argv[3])
-        
         
         if model_type == 1:
             training_accuracy, testing_accuracy = decisionTree(trainingSet, testSet)
@@ -220,7 +216,5 @@ def main():
         else:
             print ("incorrect model type", model_type)
             
-
-
 if __name__ == '__main__':
     main()

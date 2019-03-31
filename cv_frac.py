@@ -32,20 +32,22 @@ def get_train_test_fold(train_data_split, test_idx):
 def main():
     preprocess("dating-full.csv")
     trainingSet = pd.read_csv("trainingSet.csv")
-    #shuffle training set
-    trainingSet = trainingSet.sample(frac=1, random_state=18)
     num_folds = 10
-    train_data_split = split_cv(32, trainingSet, 0.5, num_folds)
+    train_data_split = split_cv(18, trainingSet, 1, num_folds)
 
 
-    depth_list = [3,5,7,9]
+    t_frac_list = [0.05,0.075,0.1,0.15,0.2]
+    depth = 8
     num_trees = 30
+    random_state_cv = 32
     accuracy_lists_models = []
     for i in range(3):
         accuracy_lists_models.append([])
-    for depth in depth_list:
+    for t_frac in t_frac_list:
         for idx in range(num_folds):
             trainingSet, testSet = get_train_test_fold(train_data_split, idx)
+            trainingSet = trainingSet.sample(frac=t_frac,random_state=random_state_cv)
+
             train_accuracy, test_accuracy = run_decisionTree(trainingSet, testSet, depth)
             accuracy_lists_models[0].append(test_accuracy)
 
@@ -61,45 +63,45 @@ def main():
         avg_accuracy_models.append([])
         se_models.append([])
 
-    for i, depth in enumerate(depth_list):
+    for i, t_frac in enumerate(t_frac_list):
         avg_accuracy_models[0].append(np.average(accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds]))
         se_models[0].append(stats.sem(accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds]))
-        print ("depth", depth, "Model Decision Tree: test average accuracy", avg_accuracy_models[0][i], 
+        print ("t_frac", t_frac, "Model Decision Tree: test average accuracy", avg_accuracy_models[0][i], 
                "standard error:", se_models[0][i])
 
         avg_accuracy_models[1].append(np.average(accuracy_lists_models[1][num_folds*i:num_folds*i+num_folds]))
         se_models[1].append(stats.sem(accuracy_lists_models[1][num_folds*i:num_folds*i+num_folds]))
-        print ("depth", depth, "Model Bagging: test average accuracy", avg_accuracy_models[1][i], 
+        print ("t_frac", t_frac, "Model Bagging: test average accuracy", avg_accuracy_models[1][i], 
                "standard error:", se_models[1][i])
 
         avg_accuracy_models[2].append(np.average(accuracy_lists_models[2][num_folds*i:num_folds*i+num_folds]))
         se_models[2].append(stats.sem(accuracy_lists_models[2][num_folds*i:num_folds*i+num_folds]))
-        print ("depth", depth, "Model Random Forest: test average accuracy", avg_accuracy_models[2][i], 
+        print ("t_frac", t_frac, "Model Random Forest: test average accuracy", avg_accuracy_models[2][i], 
                "standard error:", se_models[2][i])
 
     '''
     Plot learning Curves
     '''
-
-    plot_graph(depth_list, avg_accuracy_models[0], se_models[0])
-    plot_graph(depth_list, avg_accuracy_models[1], se_models[1])
-    plot_graph(depth_list, avg_accuracy_models[2], se_models[2])
+    size_list = [t_frac*4680 for t_frac in t_frac_list]
+    plot_graph(size_list, avg_accuracy_models[0], se_models[0])
+    plot_graph(size_list, avg_accuracy_models[1], se_models[1])
+    plot_graph(size_list, avg_accuracy_models[2], se_models[2])
     y_axis_label = "Average Model Accuracy"
-    x_axis_label = "Depth Limit on Tree"
+    x_axis_label = "Size of Training Data"
     plt.xlabel(x_axis_label)
     plt.ylabel(y_axis_label)
     plt.legend(['Decision Tree', 'Bagged Trees','Random Forest'], loc='best')
         
     plt.title(y_axis_label + ' v/s ' + x_axis_label)
     # plt.show()
-    plt.savefig("influence_tree_depth",dpi=300)
+    plt.savefig("learning_curves_size_training_data",dpi=300)
 
     '''
     Do Hypothesis Testing
     '''
-    for i,depth in enumerate(depth_list):
+    for i,t_frac in enumerate(t_frac_list):
 
-        print ("\nFor Depth", depth, "run Paired t-test for Decision Tree and Bagging models")
+        print ("\nFor t_frac", t_frac, "run Paired t-test for Decision Tree and Bagging models")
         print ("\nNull Hypothesis H0: Decision Tree Accuracy = Bagging Accuracy")
         print ("Alternate Hypothesis H1: Decision Tree Accuracy != Bagging Accuracy")
         print (accuracy_lists_models[0][num_folds*i:num_folds*i+num_folds])
