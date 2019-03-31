@@ -195,7 +195,7 @@ def randomForests(trainingSet, testSet):
 
 def main():
     if len(sys.argv) != 4:
-        print ("usage: python [filename] [training file name] [test file name] [model type 1(LR) or 2(SVM)]")
+        print ("usage: python [filename] [training file name] [test file name] [model type 1(DT), 2(BT) or 3(RF)]")
     else:
         trainingSet = pd.read_csv(sys.argv[1])
         testSet= pd.read_csv(sys.argv[2])
