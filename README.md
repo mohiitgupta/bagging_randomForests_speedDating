@@ -12,4 +12,6 @@ The boosted decision trees model has been implemented for the bonus question i.e
 
 The report along with learning curves is in CS573_HW4.pdf.
 
+Kindly run the `preprocess_assg4.py` before running `trees.py` and `bonus.py`.
+
 Happy Coding!
