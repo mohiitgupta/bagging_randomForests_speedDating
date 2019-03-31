@@ -1,4 +1,4 @@
-The code is written using python version 3. The speed dating dataset has been used. The project contains implementation of decision tree, bagged decision trees and random forests. These implementations can be found in `trees.py`. Also, in bonus.py, there is implementation of boosted decision trees which performs the best and gives a test accuracy of 0.77 when tuned with depth limit of 3 and num_trees of 50.
+The code is written using python version 3. The speed dating dataset has been used. The project contains implementation of decision tree, bagged decision trees and random forests. These implementations can be found in `trees.py`. Also, in `bonus.py`, there is implementation of boosted decision trees which performs the best and gives a test accuracy of 0.77 when tuned with depth limit of 3 and num_trees of 50.
 
 Time taken to run decision tree is around 17 seconds; for bagging its around 8 minutes; for random forests its around 2 minutes. Finally for the bonus question, boosted decision trees, its around 5 minutes.
 
