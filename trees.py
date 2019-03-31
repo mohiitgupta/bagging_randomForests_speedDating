@@ -220,7 +220,7 @@ def main():
 
     t1 = time.time()
     total = t1-t0
-    print ("total time taken for running code", total, "seconds")
+    # print ("total time taken for running code", total, "seconds")
             
 if __name__ == '__main__':
     main()
