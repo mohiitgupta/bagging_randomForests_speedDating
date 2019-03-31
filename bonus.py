@@ -225,7 +225,7 @@ def main():
         model_type = int(sys.argv[3])
         
         if model_type == 1:
-            training_accuracy, testing_accuracy = boosted_decision_trees(trainingSet, testSet, 3, 30)
+            training_accuracy, testing_accuracy = boosted_decision_trees(trainingSet, testSet, 3, 50)
             print ("Training Accuracy Boosted Decision Tree:", round(training_accuracy,2))
             print ("Testing Accuracy Boosted Decision Tree:", round(testing_accuracy,2))
         else:
